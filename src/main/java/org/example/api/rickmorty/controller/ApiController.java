@@ -12,10 +12,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class ApiController {
+    private final RestClient restClient;
+
+    public ApiController(RestClient.Builder builder) {
+        this.restClient = builder.baseUrl("https://rickandmortyapi.com/api").build();
+    }
 
     @GetMapping("/characters")
     public List<Character> getAllCharacters() {
-        RestClient restClient = RestClient.builder().baseUrl("https://rickandmortyapi.com/api").build();
         RickMortyApiResponse response = restClient.get().uri("/character").retrieve().body(RickMortyApiResponse.class);
         if (response == null || response.results() == null) {
             throw new RuntimeException("Empty response");
@@ -26,7 +30,6 @@ public class ApiController {
 
     @GetMapping("/characters/{id}")
     public Character getCharacterById(@PathVariable String id) {
-        RestClient restClient = RestClient.builder().baseUrl("https://rickandmortyapi.com/api").build();
         Character response = restClient.get().uri("/character/{id}", id).retrieve().body(Character.class);
         if (response == null) {
             throw new RuntimeException("Empty response");
@@ -37,7 +40,6 @@ public class ApiController {
 
     @GetMapping("/characters/status")
     public List<Character> getCharactersWithStatus(@RequestParam String status) {
-        RestClient restClient = RestClient.builder().baseUrl("https://rickandmortyapi.com/api").build();
         RickMortyApiResponse response = restClient.get().uri("/character?status={status}", status).retrieve().body(RickMortyApiResponse.class);
         if (response == null || response.results() == null) {
             throw new RuntimeException("Empty response");
@@ -48,7 +50,6 @@ public class ApiController {
 
     @GetMapping("/species-statistic")
     public int getSpeciesStatistic(@RequestParam String species) {
-        RestClient restClient = RestClient.builder().baseUrl("https://rickandmortyapi.com/api").build();
         RickMortyApiResponse response = restClient.get()
                 .uri("/character?species={species}", species)
                 .retrieve()
