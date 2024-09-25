@@ -8,12 +8,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.test.web.client.match.MockRestRequestMatchers;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.method;
+
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -34,7 +34,7 @@ class ApiControllerTest {
     void getAllCharacters() throws Exception {
         //GIVEN
         mockRestServiceServer.expect(requestTo("https://rickandmortyapi.com/api/character"))
-                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess("""
                                 {
                                     "info": {
@@ -58,28 +58,54 @@ class ApiControllerTest {
                 //THEN
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
-              [
-                {
-                  "id":1,
-                  "name":"Rick Sanchez",
-                   "species":"Human"}
-                ]
+                        [
+                          {
+                            "id":1,
+                            "name":"Rick Sanchez",
+                             "species":"Human"}
+                          ]
                         """));
     }
 
-        @Test
-        void getCharacterById () {
-        }
+    @Test
+    void getCharacterById() throws Exception {
+        //GIVEN
+        mockRestServiceServer.expect(requestTo("https://rickandmortyapi.com/api/character/1"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                                        {
+                                            "id": 1,
+                                            "name": "Rick Sanchez",
+                                            "status": "Alive",
+                                            "species": "Human"
+                                        }
+                                """,
+                        MediaType.APPLICATION_JSON));
 
-        @Test
-        void getCharactersWithStatus () {
-        }
+        //WHEN
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/characters/1"))
+                //THEN
+                .andExpect(status().isOk())
+                .andExpect(content().json("""
+                        
+                                     {
+                                       "id":1,
+                                       "name":"Rick Sanchez",
+                                        "species":"Human"
+                        }
+                        
+                        """));
+    }
 
-        @Test
-        void getSpeciesStatistic () {
-        }
+    @Test
+    void getCharactersWithStatus() {
+    }
 
-        @Test
-        void noSuchElementExceptionHandler () {
-        }
+    @Test
+    void getSpeciesStatistic() {
+    }
+
+    @Test
+    void noSuchElementExceptionHandler() {
+    }
 }
