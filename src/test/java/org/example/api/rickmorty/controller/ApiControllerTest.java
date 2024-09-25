@@ -98,14 +98,92 @@ class ApiControllerTest {
     }
 
     @Test
-    void getCharactersWithStatus() {
+    void getCharactersWithStatus() throws Exception {
+        // GIVEN
+        mockRestServiceServer.expect(requestTo("https://rickandmortyapi.com/api/character?status=alive"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                            {
+                                "info": {
+                                    "count": 439,
+                                    "pages": 22
+                                },
+                                "results": [
+                                    {
+                                        "id": 1,
+                                        "name": "Rick Sanchez",
+                                        "status": "Alive",
+                                        "species": "Human"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "name": "Morty Smith",
+                                        "status": "Alive",
+                                        "species": "Human"
+                                    }
+                                ]
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+        // WHEN
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/characters/status")
+                        .param("status", "alive"))
+                // THEN
+                .andExpect(status().isOk())
+                .andExpect(content().json("""
+                [
+                    {
+                        "id": 1,
+                        "name": "Rick Sanchez",
+                        "status": "Alive",
+                        "species": "Human"
+                    },
+                    {
+                        "id": 2,
+                        "name": "Morty Smith",
+                        "status": "Alive",
+                        "species": "Human"
+                    }
+                ]
+            """));
     }
 
-    @Test
-    void getSpeciesStatistic() {
-    }
 
     @Test
-    void noSuchElementExceptionHandler() {
+    void getSpeciesStatistic() throws Exception {
+        // GIVEN
+        mockRestServiceServer.expect(requestTo("https://rickandmortyapi.com/api/character?species=Human"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("""
+                            {
+                                "info": {
+                                    "count": 439,
+                                    "pages": 22
+                                },
+                                "results": [
+                                    {
+                                        "id": 1,
+                                        "name": "Rick Sanchez",
+                                        "status": "Alive",
+                                        "species": "Human"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "name": "Morty Smith",
+                                        "status": "Alive",
+                                        "species": "Human"
+                                    }
+                                ]
+                            }
+                            """, MediaType.APPLICATION_JSON));
+
+        // WHEN
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/species-statistic")
+                        .param("species", "Human"))
+                // THEN
+                .andExpect(status().isOk())
+                .andExpect(content().string("439"));
+
     }
+
 }
